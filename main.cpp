@@ -22,13 +22,27 @@ int main() {
         std::cin >> choice;
 
         switch(choice) {
-            case 1: board.initializeFromFile("bugs.txt"); break;
+            case 1: board.initializeFromFile("C:/Users/mdmss/CLionProjects/BUGSLIFE/bugs.txt"); break;
             case 2: board.displayAllBugs(); break;
             case 3: {
                 int id; std::cout << "Enter bug id: "; std::cin >> id;
                 Bug* b = board.findBugById(id);
-                if(b) std::cout << "Bug found (display later)\n";
-                else std::cout << "bug " << id << " not found\n";
+                if (b) {
+                    std::cout << b->getId() << " " << b->getType() << " ("
+                              << b->getPosition().first << "," << b->getPosition().second << ") "
+                              << b->getHealth() << " ";
+                    switch(b->getDirection()) {
+                        case 1: std::cout << "North"; break;
+                        case 2: std::cout << "East"; break;
+                        case 3: std::cout << "South"; break;
+                        case 4: std::cout << "West"; break;
+                    }
+                    std::string extra = b->getExtraInfo();
+                    if (!extra.empty()) std::cout << " " << extra;
+                    std::cout << " " << (b->isAlive() ? "Alive" : "Dead") << std::endl;
+                } else {
+                    std::cout << "bug " << id << " not found\n";
+                }
                 break;
             }
             case 4: board.tapBoard(); break;
