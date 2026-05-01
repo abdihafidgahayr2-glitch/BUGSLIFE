@@ -118,7 +118,18 @@ void Board::tapBoard() {
     }
     std::cout << "Tap complete. " << aliveCount() << " bugs alive.\n";
 }
+// Display path history for each bug
 void Board::displayLifeHistories() const {
+    for (Bug* b : bugs) {
+        std::cout << b->getId() << " " << b->getType() << " Path: ";
+        for (const auto& pos : b->getPath()) {
+            std::cout << "(" << pos.first << "," << pos.second << ") ";
+        }
+        if (b->isAlive())
+            std::cout << "Alive!" << std::endl;
+        else
+            std::cout << "Dead" << std::endl;
+    }
 }
 
 void Board::displayCells() const {
@@ -128,5 +139,23 @@ void Board::runSimulation() {
 }
 
 void Board::writeLifeHistoriesToFile(const std::string& filename) const {
+
+    std::ofstream outFile(filename);
+    if (!outFile.is_open()) {
+        std::cerr << "Error: cannot write to " << filename << std::endl;
+        return;
+    }
+    for (Bug* b : bugs) {
+        outFile << b->getId() << " " << b->getType() << " Path: ";
+        for (const auto& pos : b->getPath()) {
+            outFile << "(" << pos.first << "," << pos.second << ") ";
+        }
+        if (b->isAlive())
+            outFile << "Alive!" << std::endl;
+        else
+            outFile << "Dead" << std::endl;
+    }
+    outFile.close();
+    std::cout << "Life histories written to " << filename << std::endl;
 
 }
