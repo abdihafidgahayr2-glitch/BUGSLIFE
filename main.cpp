@@ -1,5 +1,4 @@
 #include <iostream>
-#include <cstdlib>
 #include <ctime>
 #include "Board.h"
 
@@ -22,7 +21,7 @@ int main() {
         std::cin >> choice;
 
         switch(choice) {
-            case 1: board.initializeFromFile("C:/Users/mdmss/CLionProjects/BUGSLIFE/bugs.txt"); break;
+            case 1: board.initializeFromFile("bugs.txt"); break;
             case 2: board.displayAllBugs(); break;
             case 3: {
                 int id; std::cout << "Enter bug id: "; std::cin >> id;

@@ -10,4 +10,6 @@ add_executable(BUGSLIFE
         Crawler.cpp
         Hopper.cpp
         Board.cpp
+        Jumper.cpp
+        Jumper.h
 )

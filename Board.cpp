@@ -5,6 +5,9 @@
 #include <sstream>
 #include <iostream>
 #include <map>
+#include <thread>
+#include <chrono>
+#include "Jumper.h"
 
 Board::~Board() {
     for (Bug* b : bugs) delete b;
@@ -41,9 +44,14 @@ void Board::initializeFromFile(const std::string& filename) {
 
         if (type == 'C') {
             bugs.push_back(new Crawler(id, x, y, dir, health));
-        } else if (type == 'H') {
+        }
+        else if (type == 'H') {
             int hopLen = std::stoi(tokens[6]);
             bugs.push_back(new Hopper(id, x, y, dir, health, hopLen));
+        }
+        else if (type == 'J') {
+            int jumpDist = std::stoi(tokens[6]);
+            bugs.push_back(new Jumper(id, x, y, dir, health, jumpDist));
         }
     }
     file.close();
@@ -133,9 +141,55 @@ void Board::displayLifeHistories() const {
 }
 
 void Board::displayCells() const {
+
+    // 10x10 grid, each cell holds a string description
+    std::vector<std::vector<std::string>> grid(10, std::vector<std::string>(10, "empty"));
+
+    for (Bug* b : bugs) {
+        if (b->isAlive()) {
+            int x = b->getPosition().first;
+            int y = b->getPosition().second;
+            std::string desc = b->getType() + " " + std::to_string(b->getId());
+            if (grid[y][x] == "empty")
+                grid[y][x] = desc;
+            else
+                grid[y][x] += ", " + desc;
+        }
+    }
+
+    // Print row by row
+    for (int y = 0; y < 10; ++y) {
+        for (int x = 0; x < 10; ++x) {
+            std::cout << "(" << x << "," << y << "): " << grid[y][x] << std::endl;
+        }
+    }
+
 }
 
 void Board::runSimulation() {
+
+    int turn = 1;
+    while (aliveCount() > 1) {
+        std::cout << "\n--- Turn " << turn++ << " ---" << std::endl;
+        tapBoard();   // moves, fights, freezes one bug
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+
+    if (aliveCount() == 1) {
+        for (Bug* b : bugs) {
+            if (b->isAlive()) {
+                std::cout << "\nGame Over! The winner is Bug " << b->getId()
+                          << " (" << b->getType() << ")" << std::endl;
+                break;
+            }
+        }
+    } else {
+        std::cout << "All bugs died – no winner." << std::endl;
+    }
+
+    // Auto write simulation history to file
+    writeLifeHistoriesToFile("simulation_history.out");
+
 }
 
 void Board::writeLifeHistoriesToFile(const std::string& filename) const {
