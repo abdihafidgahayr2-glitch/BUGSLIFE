@@ -122,7 +122,7 @@ void Board::tapBoard() {
             }
             std::cout << "Fight between " << a->getId() << " and " << b->getId() << " ended.\n";
         }
-        // Odd one out stays unscathed
+        // Odd one out stays
     }
     std::cout << "Tap complete. " << aliveCount() << " bugs alive.\n";
 }
@@ -169,12 +169,15 @@ void Board::displayCells() const {
 void Board::runSimulation() {
 
     int turn = 1;
-    while (aliveCount() > 1) {
+    const int MAX_TURNS = 100;   // safety limit to prevent infinite loop
+
+    while (aliveCount() > 1 && turn <= MAX_TURNS) {
         std::cout << "\n--- Turn " << turn++ << " ---" << std::endl;
-        tapBoard();   // moves, fights, freezes one bug
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        tapBoard();               // move, fight, freeze one bug
+        std::this_thread::sleep_for(std::chrono::milliseconds(500)); // half second for speed
     }
 
+    // Determine winner
     if (aliveCount() == 1) {
         for (Bug* b : bugs) {
             if (b->isAlive()) {
@@ -183,11 +186,27 @@ void Board::runSimulation() {
                 break;
             }
         }
+    } else if (turn > MAX_TURNS && aliveCount() > 1) {
+        // No clear winner after max turns – pick bug with highest health
+        Bug* best = nullptr;
+        for (Bug* b : bugs) {
+            if (b->isAlive() && (best == nullptr || b->getHealth() > best->getHealth())) {
+                best = b;
+            }
+        }
+        if (best) {
+            std::cout << "\nSimulation stopped after " << MAX_TURNS << " turns with "
+                      << aliveCount() << " bugs alive.\n";
+            std::cout << "Winner by highest health: Bug " << best->getId()
+                      << " (" << best->getType() << ") with " << best->getHealth() << " HP.\n";
+        } else {
+            std::cout << "No bugs alive – simulation ended unusually.\n";
+        }
     } else {
-        std::cout << "All bugs died – no winner." << std::endl;
+        std::cout << "All bugs died – no winner.\n";
     }
 
-    // Auto write simulation history to file
+    // Write history to file
     writeLifeHistoriesToFile("simulation_history.out");
 
 }
