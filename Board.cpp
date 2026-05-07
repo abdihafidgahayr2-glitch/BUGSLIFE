@@ -169,7 +169,7 @@ void Board::displayCells() const {
 void Board::runSimulation() {
 
     int turn = 1;
-    const int MAX_TURNS = 100;   // safety limit to prevent infinite loop
+    const int MAX_TURNS = 3;   // safety limit to prevent infinite loop
 
     while (aliveCount() > 1 && turn <= MAX_TURNS) {
         std::cout << "\n--- Turn " << turn++ << " ---" << std::endl;
